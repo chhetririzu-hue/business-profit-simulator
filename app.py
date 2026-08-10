@@ -72,24 +72,24 @@ st.plotly_chart(fig, use_container_width=True)
 st.subheader("Scenario Comparison")
 st.write("Enter a second set of business assumptions to compare against the current scenario.")
 
-senario2_price = st.number_input("Scenario 2 Selling Price ($)", min_value=0.0, value=0.0)
-senario2_units_sold = st.number_input("Scenario 2 Units Sold", min_value=0, value=0, step=1)
+scenario2_price = st.number_input("Scenario 2 Selling Price ($)", min_value=0.0, value=0.0)
+scenario2_units_sold = st.number_input("Scenario 2 Units Sold", min_value=0, value=0, step=1)
 
-senario2_cost_per_unit = st.number_input("Scenario 2 Cost per Unit ($)", min_value=0.0, value=0.0)
-senario2_fixed_costs = st.number_input("Scenario 2 Fixed Costs ($)", min_value=0.0, value=0.0)
-senario2_marketing_costs = st.number_input("Scenario 2 Marketing Costs ($)", min_value=0.0, value=0.0)
+scenario2_cost_per_unit = st.number_input("Scenario 2 Cost per Unit ($)", min_value=0.0, value=0.0)
+scenario2_fixed_costs = st.number_input("Scenario 2 Fixed Costs ($)", min_value=0.0, value=0.0)
+scenario2_marketing_costs = st.number_input("Scenario 2 Marketing Costs ($)", min_value=0.0, value=0.0)
 
-senario2_revenue = senario2_price * senario2_units_sold
-senario2_variable_costs = senario2_cost_per_unit * senario2_units_sold
-senario2_total_costs = senario2_variable_costs + senario2_fixed_costs + senario2_marketing_costs
-senario2_profit = senario2_revenue - senario2_total_costs
+scenario2_revenue = scenario2_price * scenario2_units_sold
+scenario2_variable_costs = scenario2_cost_per_unit * scenario2_units_sold
+scenario2_total_costs = scenario2_variable_costs + scenario2_fixed_costs + scenario2_marketing_costs
+scenario2_profit = scenario2_revenue - scenario2_total_costs
 
-if senario2_revenue > 0:
-    senario2_profit_margin = (senario2_profit / senario2_revenue) * 100
+if scenario2_revenue > 0:
+    scenario2_profit_margin = (scenario2_profit / scenario2_revenue) * 100
 else:
-    senario2_profit_margin = 0.0
+    scenario2_profit_margin = 0.0
 
-profit_difference = senario2_profit - profit
+profit_difference = scenario2_profit - profit
 
 col1, col2 = st.columns(2)
 
@@ -100,8 +100,8 @@ with col1:
 
 with col2:
     st.write("### Scenario 2")
-    st.metric("Profit", f"${senario2_profit:.2f}")
-    st.metric("Profit Margin", f"{senario2_profit_margin:.2f}%")
+    st.metric("Profit", f"${scenario2_profit:.2f}")
+    st.metric("Profit Margin", f"{scenario2_profit_margin:.2f}%")
     st.metric("Profit Difference", f"${profit_difference:.2f}")
 
 if profit_difference > 0:
@@ -137,4 +137,45 @@ projection_fig.update_layout(
     title="Projected Profit Over Time",
     xaxis_title="Month",
     yaxis_title="Profit ($)"
+)
+
+st.subheader("Export Results")
+
+import pandas as pd
+
+data = {
+    "Metric": [
+        "Revenue",
+        "Total Costs",
+        "Profit",
+        "Profit Margin",
+        "Break-even Units",
+        "Break-even Revenue"
+    ],
+    "Current Scenario": [
+        revenue,
+        total_costs,
+        profit,
+        profit_margin,
+        break_even_units,
+        break_even_revenue
+    ],
+    "Scenario 2": [
+        scenario2_revenue,
+        scenario2_total_costs,
+        scenario2_profit,
+        scenario2_profit_margin,
+        None,
+        None
+    ]
+}
+
+df = pd.DataFrame(data)
+csv = df.to_csv(index=False)
+
+st.download_button(
+    label="Download CSV",
+    data=csv,
+    file_name="business_metrics.csv",
+    mime="text/csv"
 )
