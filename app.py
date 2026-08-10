@@ -26,6 +26,18 @@ if selling_price > cost_per_unit:
 else:
     break_even_units = 0
 
+break_even_revenue = break_even_units * selling_price
+unts_difference = unit_sold - break_even_units
+
+if selling_price <= cost_per_unit:
+    break_even_message = "Break-even is not possible."
+elif unts_difference > 0:
+    break_even_message = f"You are above the break-even point by {unts_difference:.2f} units."
+elif unts_difference < 0:
+    break_even_message = f"You are below the break-even point by {-unts_difference:.2f} units."
+else:
+    break_even_message = "You are at the break-even point."
+
 
 
 st.subheader("Business Metrics")
@@ -38,6 +50,8 @@ col2.metric("Profit", f"${profit:.2f}")
 col4, col5 = st.columns(2)
 col4.metric("Toal Costs", f"${total_costs:.2f}")
 col5.metric("Break-even Units", f"{break_even_units:.2f}")
+col5.metric("Break-even Revenue", f"${break_even_revenue:.2f}")
+col5.write(break_even_message)
 
 if profit > 0:
     st.success(f"Profit: ${profit:.2f}")
