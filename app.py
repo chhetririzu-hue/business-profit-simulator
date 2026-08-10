@@ -19,15 +19,21 @@ if revenue > 0:
 else:
     profit_margin = 0.0
 
-st.write(f"Revenue: ${revenue:.2f}")
-st.write(f"Variable Costs: ${variable_costs:.2f}")
-st.write(f"Total Costs: ${total_costs:.2f}")
-st.write(f"Profit: ${profit:.2f}")
-st.write(f"Profit Margin: {profit_margin:.2f}%")
 
 if selling_price > cost_per_unit:
     break_even_units = (fixed_costs + marketing_costs) / (selling_price - cost_per_unit)
 else:
     break_even_units = 0
 
-st.write(f"Break-even Units: {break_even_units:.2f}")
+
+
+st.subheader("Business Metrics")
+col1, col2, col3 = st.columns(3)
+
+col1.metric("Revenue", f"${revenue:.2f}")
+col3.metric("Profit Margin", f"{profit_margin:.2f}%")
+col2.metric("Profit", f"${profit:.2f}")
+
+col4, col5 = st.columns(2)
+col4.metric("Toal Costs", f"${total_costs:.2f}")
+col5.metric("Break-even Units", f"{break_even_units:.2f}")
