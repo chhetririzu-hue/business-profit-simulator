@@ -37,3 +37,11 @@ col2.metric("Profit", f"${profit:.2f}")
 col4, col5 = st.columns(2)
 col4.metric("Toal Costs", f"${total_costs:.2f}")
 col5.metric("Break-even Units", f"{break_even_units:.2f}")
+
+if profit > 0:
+    st.success(f"Profit: ${profit:.2f}")
+elif profit < 0:
+    st.error(f"Loss: ${-profit:.2f}")   
+else:
+    st.info("Break-even: No profit or loss.")
+    
