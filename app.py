@@ -96,3 +96,31 @@ elif profit_difference < 0:
     st.error(f"Scenario 2 is less profitable by ${-profit_difference:.2f}") 
 else:
     st.info("Both scenarios have the same profit.")
+
+st.subheader("Monthly Profit Projection")
+projection_months = st.number_input("Number of Months", min_value=1, value=12, step=1)
+months = list(range(1, projection_months + 1))
+monthly_growth_rate = st.number_input("Monthly Growth Rate (%)", value=0.0, step=1.0)
+projected_profit = []
+current_profit = profit
+for month in months:
+    projected_profit.append(current_profit)
+    current_profit = current_profit * (1 + monthly_growth_rate / 100)
+projection_fig = go.Figure()
+
+projection_fig.add_trace(go.Scatter(
+    x=months,
+    y=projected_profit,
+    mode='lines+markers',
+    name='Projected Profit',
+))
+
+st.plotly_chart(projection_fig, use_container_width=True)
+
+
+
+projection_fig.update_layout(
+    title="Projected Profit Over Time",
+    xaxis_title="Month",
+    yaxis_title="Profit ($)"
+)
