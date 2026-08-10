@@ -1,4 +1,5 @@
 import streamlit as st
+import plotly.graph_objects as go
 
 st.title("Business Profit Simulator")
 st.write("Test different business scenarios and see how they affect profit.")
@@ -44,4 +45,12 @@ elif profit < 0:
     st.error(f"Loss: ${-profit:.2f}")   
 else:
     st.info("Break-even: No profit or loss.")
-    
+
+st. subheader("Business Performance")
+fig = go.Figure()
+fig.add_trace(go.Bar(
+    x=["Revenue", "Total Costs", "Profit"],
+    y=[revenue, total_costs, profit],
+))
+
+st.plotly_chart(fig, use_container_width=True)
