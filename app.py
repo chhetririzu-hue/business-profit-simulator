@@ -1,6 +1,9 @@
 import streamlit as st
 import plotly.graph_objects as go
 
+if "scenario_count" not in st.session_state:
+    st.session_state.scenario_count = 1
+
 st.title("Business Profit Simulator")
 st.write("Test different business scenarios and see how they affect profit.")
 
@@ -69,47 +72,81 @@ fig.add_trace(go.Bar(
 
 st.plotly_chart(fig, use_container_width=True)
 
-st.subheader("Scenario Comparison")
-st.write("Enter a second set of business assumptions to compare against the current scenario.")
+scenarios = []
 
-scenario2_price = st.number_input("Scenario 2 Selling Price ($)", min_value=0.0, value=0.0)
-scenario2_units_sold = st.number_input("Scenario 2 Units Sold", min_value=0, value=0, step=1)
+if st.button("Add Scenario"):
+    st.session_state.scenario_count += 1
+    
+for i in range(2, st.session_state.scenario_count + 1):
+    with st.expander(f"Scenario {i}"):
+        scenario_price = st.number_input(f"Scenario {i} Selling Price ($)", min_value=0.0, value=0.0, key=f"scenario_{i}_price")
+        scenario_units_sold = st.number_input(f"Scenario {i} Units Sold", min_value=0, value=0, step=1, key=f"scenario_{i}_units_sold")
+        scenario_cost_per_unit = st.number_input(f"Scenario {i} Cost per Unit ($)", min_value=0.0, value=0.0, key=f"scenario_{i}_cost_per_unit")
+        scenario_fixed_costs = st.number_input(f"Scenario {i} Fixed Costs ($)", min_value=0.0, value=0.0, key=f"scenario_{i}_fixed_costs")
+        scenario_marketing_costs = st.number_input(f"Scenario {i} Marketing Costs ($)", min_value=0.0, value=0.0, key=f"scenario_{i}_marketing_costs")
 
-scenario2_cost_per_unit = st.number_input("Scenario 2 Cost per Unit ($)", min_value=0.0, value=0.0)
-scenario2_fixed_costs = st.number_input("Scenario 2 Fixed Costs ($)", min_value=0.0, value=0.0)
-scenario2_marketing_costs = st.number_input("Scenario 2 Marketing Costs ($)", min_value=0.0, value=0.0)
+        scenario_revenue = scenario_price * scenario_units_sold
+        scenario_variable_costs = scenario_cost_per_unit * scenario_units_sold
+        scenario_total_costs = scenario_variable_costs + scenario_fixed_costs + scenario_marketing_costs
+        scenario_profit = scenario_revenue - scenario_total_costs
 
-scenario2_revenue = scenario2_price * scenario2_units_sold
-scenario2_variable_costs = scenario2_cost_per_unit * scenario2_units_sold
-scenario2_total_costs = scenario2_variable_costs + scenario2_fixed_costs + scenario2_marketing_costs
-scenario2_profit = scenario2_revenue - scenario2_total_costs
+        if scenario_revenue > 0:
+            scenario_profit_margin = (scenario_profit / scenario_revenue) * 100
 
-if scenario2_revenue > 0:
-    scenario2_profit_margin = (scenario2_profit / scenario2_revenue) * 100
-else:
-    scenario2_profit_margin = 0.0
+        else:
+            scenario_profit_margin = 0.0
 
-profit_difference = scenario2_profit - profit
+        scenarios.append({
+            "name": f"Scenario {i}",
+            "profit": scenario_profit,
+            "profit_margin": scenario_profit_margin
+        })
 
-col1, col2 = st.columns(2)
+        profit_difference = scenario_profit - profit
 
-with col1:
-    st.write("### Current Scenario")
-    st.metric("Profit", f"${profit:.2f}")
-    st.metric("Profit Margin", f"{profit_margin:.2f}%")
+        col1, col2 = st.columns(2)
 
-with col2:
-    st.write("### Scenario 2")
-    st.metric("Profit", f"${scenario2_profit:.2f}")
-    st.metric("Profit Margin", f"{scenario2_profit_margin:.2f}%")
-    st.metric("Profit Difference", f"${profit_difference:.2f}")
+        with col1:
+            st.write(f"### Scenario {i}")
+            st.metric("Profit", f"${scenario_profit:.2f}")
+            st.metric("Profit Margin", f"{scenario_profit_margin:.2f}%")
 
-if profit_difference > 0:
-    st.success(f"Scenario 2 is more profitable by ${profit_difference:.2f}")
-elif profit_difference < 0:
-    st.error(f"Scenario 2 is less profitable by ${-profit_difference:.2f}") 
-else:
-    st.info("Both scenarios have the same profit.")
+        with col2:
+            st.metric("Profit Difference", f"${profit_difference:.2f}")
+
+        if profit_difference > 0:
+            st.success(f"Scenario {i} is more profitable by ${profit_difference:.2f}")
+        elif profit_difference < 0:
+            st.error(f"Scenario {i} is less profitable by ${-profit_difference:.2f}") 
+        else:
+            st.info(f"Scenario {i} has the same profit as the current scenario.")
+
+scenarios.append({
+    "name": "Current Scenario",
+    "profit": profit,
+    "profit_margin": profit_margin})
+
+if scenarios:
+    highest_profit = max(scenario["profit"] for scenario in scenarios)
+
+    best_scenarios = [
+        scenario for scenario in scenarios
+        if scenario["profit"] == highest_profit
+    ]
+
+    if len(best_scenarios) > 1:
+        names = ", ".join(scenario["name"] for scenario in best_scenarios)
+        st.info(
+            f"Best Scenarios are tied: {names} "
+            f"with a profit of ${highest_profit:.2f}"
+        )
+    else:
+        best_scenario = best_scenarios[0]
+        st.success(
+            f'Best Scenario: {best_scenario["name"]} '
+            f'with Profit: ${best_scenario["profit"]:.2f} '
+            f'and Profit Margin: {best_scenario["profit_margin"]:.2f}%'
+        )
 
 st.subheader("Monthly Profit Projection")
 projection_months = st.number_input("Number of Months", min_value=1, value=12, step=1)
